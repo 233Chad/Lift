@@ -96,11 +96,10 @@ public class BukkitLift extends JavaPlugin implements Listener {
 	
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
     	if(cmd.getName().equalsIgnoreCase("lift")
-                && sender instanceof Player
+                && sender instanceof Player player
                 && args.length == 0){ // If the player typed /basic then do the following...
     		long time = System.currentTimeMillis();
-    		Player player = (Player) sender;
-    		player.sendMessage("Starting scan");
+			player.sendMessage("Starting scan");
     		BukkitElevator bukkitElevator = new BukkitElevator(this);
     		if (BukkitElevatorManager.isBaseBlock(player.getLocation().getBlock().getRelative(BlockFace.DOWN))){
     			bukkitElevator.baseBlockType = player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType();

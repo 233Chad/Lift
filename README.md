@@ -2,11 +2,8 @@
 For download see [Lift on spigotmc.org](https://www.spigotmc.org/resources/lift.4704/) or 
 [Lift on bukkit.org](https://dev.bukkit.org/projects/lift).
 
-### This plugin is no longer maintained
-You can instead take a look at [LiftReloaded](https://www.spigotmc.org/resources/liftreloaded.97551)
-
 ### Changes
-
+* v75 (1.20) - Increased limits for 1.20.
 * v72 (1.17.2) - Removed Nocheatplus support. Increased limits for 1.18. Min java version is Java 16
 * v71 (1.16.4) - A Lift does timeout when it's active longer than expected (passengers stuck).  
   Passengers will then be teleported to the destination. See config "secondsUntilTimeout" (default 2s)  

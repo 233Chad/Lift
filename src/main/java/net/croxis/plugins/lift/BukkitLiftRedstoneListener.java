@@ -28,6 +28,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
+import org.bukkit.block.sign.Side;
+import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
@@ -43,12 +45,12 @@ public class BukkitLiftRedstoneListener implements Listener {
 	// Supporting annoying out of date servers
 	private boolean canDo = false;
 	private Block block = null;
-	
+
 	public BukkitLiftRedstoneListener(BukkitLift plugin){
 		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 		this.plugin = plugin;
 	}
-	
+
 	@EventHandler
 	public void onBlockRedstoneChange(BlockRedstoneEvent event){
 		block = event.getBlock();
@@ -57,7 +59,7 @@ public class BukkitLiftRedstoneListener implements Listener {
 				&& (!event.getBlock().isBlockIndirectlyPowered())
 				&& event.getBlock().getRelative(BlockFace.UP).getType().toString().matches(".*?WALL_SIGN");
 		String reason = "Button press";
-		
+
 		if (BukkitConfig.redstone){
 			plugin.logDebug("Redstone scan of " + event.getBlock().toString());
 			reason = "Redstone signal event";
@@ -66,7 +68,7 @@ public class BukkitLiftRedstoneListener implements Listener {
 			blocks[1] = event.getBlock().getRelative(BlockFace.WEST);
 			blocks[2] = event.getBlock().getRelative(BlockFace.NORTH);
 			blocks[3] = event.getBlock().getRelative(BlockFace.SOUTH);
-			
+
 			for (Block b : blocks){
 				Block[] blocks2 = new Block[4];
 				blocks2[0] = b.getRelative(BlockFace.EAST);
@@ -104,7 +106,8 @@ public class BukkitLiftRedstoneListener implements Listener {
 			Bukkit.getPluginManager().callEvent(new ElevatorActivateEvent(bukkitElevator));
 
             Sign sign = (Sign) block.getRelative(BlockFace.UP).getState();
-			LiftSign liftSign = new LiftSign(BukkitLift.config, sign.getLine(0), sign.getLine(1), sign.getLine(2), sign.getLine(3));
+            SignSide signSide = sign.getSide(Side.FRONT);
+			LiftSign liftSign = new LiftSign(BukkitLift.config, signSide.getLine(0), signSide.getLine(1), signSide.getLine(2), signSide.getLine(3));
 			int destination = liftSign.getDestinationFloor();
 			//See if lift is in use
 			for (BukkitElevator e : BukkitElevatorManager.bukkitElevators){
@@ -113,7 +116,7 @@ public class BukkitLiftRedstoneListener implements Listener {
 						return;
 				}
 			}
-			
+
 			int y = block.getY();
 			BukkitFloor startFloor = bukkitElevator.getFloorFromY(y);
 			bukkitElevator.startFloor = startFloor;
@@ -123,12 +126,12 @@ public class BukkitLiftRedstoneListener implements Listener {
             plugin.logDebug("Floormap: " + bukkitElevator.floormap.toString());
             plugin.logDebug("Floormap2: " + bukkitElevator.floormap2.toString());
             plugin.logDebug("Start y: " + y);
-			
+
 			if (startFloor == null || bukkitElevator.destFloor == null){
 				plugin.logInfo("Critical Error. Startfloor||DestFloor is null. Please report entire stacktrace plus the following error codes.");
 				return;
 			}
-			
+
 			if (bukkitElevator.destFloor.getY() > startFloor.getY()){
 				bukkitElevator.goingUp = true;
 			}
@@ -137,7 +140,7 @@ public class BukkitLiftRedstoneListener implements Listener {
 			plugin.logDebug("Elevator start floor y:" + startFloor.getY());
 			plugin.logDebug("Elevator destination floor:" + destination);
 			plugin.logDebug("Elevator destination y:" + bukkitElevator.destFloor.getY());
-			
+
 			Iterator<Block> baseBlocksIterator = bukkitElevator.baseBlocks.iterator();
 			for(Chunk chunk : bukkitElevator.chunks){
 				plugin.logDebug("Number of entities in this chunk: " + chunk.getEntities().length);
@@ -150,10 +153,10 @@ public class BukkitLiftRedstoneListener implements Listener {
 								entity.sendMessage("You are already in a lift. Relog in case this is an error.");
 							continue;
 						}
-						
+
 						if (entity instanceof Minecart){
 							bukkitElevator.addMinecartSpeed((Minecart) entity);
-							//A minecart wont go up if attached to a rail, so we temp remove the rail.  
+							//A minecart wont go up if attached to a rail, so we temp remove the rail.
 							if (bukkitElevator.goingUp
 									&& (entity.getLocation().getBlock().getType() == Material.RAIL
 									|| entity.getLocation().getBlock().getType() == Material.DETECTOR_RAIL
@@ -169,9 +172,8 @@ public class BukkitLiftRedstoneListener implements Listener {
 							Location loc = baseBlocksIterator.next().getLocation();
 							entity.teleport(new Location(entity.getWorld(), loc.getX() + 0.5D, entity.getLocation().getY(), loc.getZ() + 0.5D, entity.getLocation().getYaw(), entity.getLocation().getPitch()), TeleportCause.UNKNOWN);
 						}
-						if (entity instanceof Player){
-							Player player = (Player) entity;
-							plugin.logDebug("Flyers: " + BukkitElevatorManager.fliers.toString());
+						if (entity instanceof Player player){
+                            plugin.logDebug("Flyers: " + BukkitElevatorManager.fliers.toString());
 							if (!player.hasPermission("lift")){
 								BukkitElevatorManager.addHolder(bukkitElevator, entity, entity.getLocation(), "Does not have lift permission.");
 							}
@@ -183,7 +185,7 @@ public class BukkitLiftRedstoneListener implements Listener {
 					}
 				}
 			}
-			
+
 			//Disable all glass inbetween players and destination
 			ArrayList<Floor> glassfloors = new ArrayList<>();
 			//Going up
@@ -202,7 +204,7 @@ public class BukkitLiftRedstoneListener implements Listener {
 				for (Block b : bukkitElevator.baseBlocks){
 					Block gb = event.getBlock().getWorld().getBlockAt(b.getX(), f.getY()-2, b.getZ());
 					bukkitElevator.addFloorBlock(gb);
-					
+
 					if (gb.getRelative(BlockFace.UP).getType().toString().contains("CARPET")){
 						bukkitElevator.addCarpetBlock(gb.getRelative(BlockFace.UP));
 						gb.getRelative(BlockFace.UP).setType(Material.AIR);
@@ -216,7 +218,7 @@ public class BukkitLiftRedstoneListener implements Listener {
 						bukkitElevator.addRedstoneBlock(gb.getRelative(BlockFace.UP));
 						gb.getRelative(BlockFace.UP).setType(Material.AIR);
 					}
-					
+
 					gb.setType(Material.AIR);
 				}
 			}

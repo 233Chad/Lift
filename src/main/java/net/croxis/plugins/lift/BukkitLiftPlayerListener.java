@@ -25,6 +25,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
+import org.bukkit.block.sign.Side;
+import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -49,10 +51,10 @@ public class BukkitLiftPlayerListener implements Listener{
 		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 		this.plugin = plugin;
 	}
-	
+
 	@EventHandler (ignoreCancelled = true)
 	public void onPlayerInteract(PlayerInteractEvent event){
-		if ((event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_BLOCK) 
+		if ((event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_BLOCK)
 				&& event.getPlayer().hasPermission("lift.change")
 				//&& !playerCache.containsKey(event.getPlayer().getUniqueId())
 			) {
@@ -63,15 +65,16 @@ public class BukkitLiftPlayerListener implements Listener{
 			    && BukkitElevatorManager.isButton(buttonBlock)) {
 
 				Sign sign = (Sign) event.getClickedBlock().getState();
+				SignSide signSide = sign.getSide(Side.FRONT);
 
 				BukkitElevator bukkitElevator = BukkitElevatorManager.createLift(buttonBlock, event.getPlayer().getName());
-				
+
 				if (bukkitElevator == null){
 					plugin.logDebug("Player elevator generation returned a null object. Button block at: " + buttonBlock.getLocation().toString());
 					plugin.logDebug("Please see previous messages to determine why.");
 					return;
 				}
-				
+
 				if (bukkitElevator.getTotalFloors() < 1){
 					// This is just a button and sign, not an elevator.
 					return;
@@ -81,8 +84,8 @@ public class BukkitLiftPlayerListener implements Listener{
 				}
 
 				// Located here in case sign above button is for another mod/plugin
-				LiftSign liftSign = new LiftSign(BukkitLift.config, sign.getLines());
-				
+				LiftSign liftSign = new LiftSign(BukkitLift.config, sign.getSide(Side.FRONT).getLines());
+
 				// If sign is clicked with an item in hand, just switch to the next floor
 				// If a sign is clicked with an open hand, use the mouse scroll method
 				plugin.logDebug("HAND: " + event.getPlayer().getInventory().getItemInMainHand().toString());
@@ -131,10 +134,11 @@ public class BukkitLiftPlayerListener implements Listener{
 					liftSign.setDestinationFloor(currentDestinationInt);
 					liftSign.setDestinationName(bukkitElevator.getFloorFromN(currentDestinationInt).getName());
 					String[] data = liftSign.saveSign();
-					sign.setLine(0, data[0]);
-					sign.setLine(1, data[1]);
-					sign.setLine(2, data[2]);
-					sign.setLine(3, data[3]);
+                    signSide.setLine(0, data[0]);
+                    signSide.setLine(1, data[1]);
+                    signSide.setLine(2, data[2]);
+                    signSide.setLine(3, data[3]);
+                    sign.setEditable(false);
 					sign.update();
 					plugin.logDebug("Completed sign update");
 				}
@@ -163,6 +167,7 @@ public class BukkitLiftPlayerListener implements Listener{
 		BukkitElevator bukkitElevator = playerCache.get(event.getPlayer().getUniqueId());
 		LiftSign liftSign = signCache.get(event.getPlayer().getUniqueId());
 		Sign sign = otherSignCache.get(event.getPlayer().getUniqueId());
+        SignSide signSide = sign.getSide(Side.FRONT);
 
 		if (event.getPlayer().getLocation().distance(sign.getLocation()) > 3) {
 			removePlayerCache(event.getPlayer());
@@ -200,27 +205,27 @@ public class BukkitLiftPlayerListener implements Listener{
 		liftSign.setDestinationFloor(currentDestinationInt);
 		liftSign.setDestinationName(bukkitElevator.getFloorFromN(currentDestinationInt).getName());
 		String[] data = liftSign.saveSign();
-		sign.setLine(0, data[0]);
-		sign.setLine(1, data[1]);
-		sign.setLine(2, data[2]);
-		sign.setLine(3, data[3]);
+		signSide.setLine(0, data[0]);
+		signSide.setLine(1, data[1]);
+		signSide.setLine(2, data[2]);
+		signSide.setLine(3, data[3]);
 		sign.update();
 		plugin.logDebug("Completed sign update");
 
 	}
-	
+
 	@EventHandler
 	public void onPlayerItemPickup(EntityPickupItemEvent event){
 		if (BukkitElevatorManager.isInALift(event.getItem()))
 			BukkitElevatorManager.removePassenger(event.getItem());
 	}
-	
+
 	@EventHandler
 	public void onItemPickup(InventoryPickupItemEvent event){
 		if (BukkitElevatorManager.isInALift(event.getItem()))
 			BukkitElevatorManager.removePassenger(event.getItem());
 	}
-	
+
 	@EventHandler
 	public void onEntityDamage(EntityDamageEvent e){
 		if(e.getCause() == DamageCause.FALL){
@@ -231,22 +236,13 @@ public class BukkitLiftPlayerListener implements Listener{
 			}
 		}
 	}
-	
+
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event){
 		BukkitElevatorManager.removePlayer(event.getPlayer());
 		removePlayerCache(event.getPlayer());
 	}
 
-	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent event) {
-		Player player = event.getPlayer();
-		if (player.isOp()) {
-			player.sendMessage("§6[Lift] This plugin is no longer maintained. You can " +
-					"instead take a look at LiftReloaded: https://www.spigotmc.org/resources/liftreloaded.97551");
-		}
-	}
-	
 	@EventHandler
 	public void onPlayerKick(PlayerKickEvent event){
 		BukkitElevatorManager.removePlayer(event.getPlayer());
