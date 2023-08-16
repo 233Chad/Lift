@@ -138,7 +138,7 @@ public class BukkitLiftPlayerListener implements Listener{
                     signSide.setLine(1, data[1]);
                     signSide.setLine(2, data[2]);
                     signSide.setLine(3, data[3]);
-                    sign.setEditable(false);
+                    sign.setWaxed(true);
 					sign.update();
 					plugin.logDebug("Completed sign update");
 				}
