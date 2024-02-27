@@ -33,6 +33,8 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Powerable;
 import org.bukkit.block.data.type.WallSign;
+import org.bukkit.block.sign.Side;
+import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
@@ -186,13 +188,14 @@ public class BukkitElevatorManager extends ElevatorManager{
                     // Use old signs first for compatibility.
                     if (testBlock.getRelative(BlockFace.DOWN).getType().toString().matches(".*?WALL_SIGN")){
                         Sign sign = (Sign) testBlock.getRelative(BlockFace.DOWN).getState();
-                        if (!sign.getLine(0).isEmpty())
-                            floor.setName(sign.getLine(0));
-                        else if (!sign.getLine(1).isEmpty())
-                            floor.setName(sign.getLine(1));
+                        SignSide signSide = sign.getSide(Side.FRONT);
+                        if (!signSide.getLine(0).isEmpty())
+                            floor.setName(signSide.getLine(0));
+                        else if (!signSide.getLine(1).isEmpty())
+                            floor.setName(signSide.getLine(1));
                     }
                     else if (testBlock.getRelative(BlockFace.UP).getType().toString().matches(".*?WALL_SIGN")){
-                        LiftSign liftSign = new LiftSign(BukkitLift.config, ((Sign) testBlock.getRelative(BlockFace.UP).getState()).getLines());
+                        LiftSign liftSign = new LiftSign(BukkitLift.config, ((Sign) testBlock.getRelative(BlockFace.UP).getState()).getSide(Side.FRONT).getLines());
                         floor.setName(liftSign.getCurrentName());
                     }
                     bukkitElevator.floormap.put(y1, floor);
@@ -283,18 +286,16 @@ public class BukkitElevatorManager extends ElevatorManager{
                 .getButton()
                 .getRelative(BlockFace.UP);
         BlockData data = aboveBtn.getBlockData();
-        if (!(data instanceof WallSign)) {
+        if (!(data instanceof WallSign sign)) {
             plugin.logWarn("WARNING: Expected sign but found " + aboveBtn.getType() + " at " +
                     aboveBtn.getLocation() + ". Cannot set redstone pulse.");
         } else {
-            WallSign sign = (WallSign) data;
             BlockFace face = sign.getFacing()
                     .getOppositeFace();
             Block checkBlock = aboveBtn.getRelative(face)
                     .getRelative(face);
             BlockData blockData = checkBlock.getBlockData();
-            if (blockData instanceof Powerable) {
-                Powerable powerData = (Powerable) blockData;
+            if (blockData instanceof Powerable powerData) {
                 powerData.setPowered(true);
                 checkBlock.setBlockData(powerData);
             }
