@@ -32,9 +32,8 @@ public class BukkitCancelRedstoneTask extends BukkitRunnable{
 
 	public void run() {
 		BlockData data = button.getBlockData();
-		if (data instanceof Powerable){
-			Powerable powerData = (Powerable) data;
-			powerData.setPowered(false);
+		if (data instanceof Powerable powerData){
+            powerData.setPowered(false);
 			button.setBlockData(powerData);
 		}
 	}

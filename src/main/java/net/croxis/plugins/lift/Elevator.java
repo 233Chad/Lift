@@ -77,7 +77,7 @@ public abstract class Elevator {
 		this.failReason = failReason;
 	}
 	
-	public String toString() { return "Elevator[" + this.id.toString() + "]";}
+	public String toString() { return "Elevator[" + this.id + "]";}
 
 	public void setCacheLock(boolean cacheLock) {
 		this.cacheLock = cacheLock;

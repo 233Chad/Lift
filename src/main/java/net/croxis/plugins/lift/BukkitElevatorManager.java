@@ -87,14 +87,14 @@ public class BukkitElevatorManager extends ElevatorManager{
                 // Something is obstructing the elevator so stop
                 plugin.logDebug("==Unknown Error==");
                 plugin.logDebug("Yscan: " + yscan);
-                plugin.logDebug("Block: " + checkBlock.getType().toString());
+                plugin.logDebug("Block: " + checkBlock.getType());
                 plugin.logDebug("Is Valid Block: " + isValidShaftBlock(checkBlock));
                 plugin.logDebug("Is Base Block: " + BukkitElevatorManager.isBaseBlock(checkBlock));
                 return null;
             }
             yscan--;
         }
-        plugin.logDebug("Base size: " + bukkitElevator.baseBlocks.size() + " at " + bukkitElevator.baseBlocks.iterator().next().getLocation().toString());
+        plugin.logDebug("Base size: " + bukkitElevator.baseBlocks.size() + " at " + bukkitElevator.baseBlocks.iterator().next().getLocation());
 
         constructFloors(bukkitElevator);
 
@@ -175,7 +175,7 @@ public class BukkitElevatorManager extends ElevatorManager{
                             .append(" of type ")
                             .append(testBlock.getType());
                     maxY = y1;
-                    plugin.logDebug("Not valid shaft block" + x + " " + y1 + " " + z + " of type "  + testBlock.getType().toString());
+                    plugin.logDebug("Not valid shaft block" + x + " " + y1 + " " + z + " of type "  + testBlock.getType());
                     break;
                 }
                 if (isButton(testBlock)){
@@ -199,7 +199,7 @@ public class BukkitElevatorManager extends ElevatorManager{
                         floor.setName(liftSign.getCurrentName());
                     }
                     bukkitElevator.floormap.put(y1, floor);
-                    plugin.logDebug("Floor added at lift: " + testBlock.getLocation().toString());
+                    plugin.logDebug("Floor added at lift: " + testBlock.getLocation());
                     plugin.logDebug("Floor y: " + y1);
                 }
             }
@@ -220,7 +220,7 @@ public class BukkitElevatorManager extends ElevatorManager{
 
     public static boolean scanFloorAtY(World world, int y, BukkitElevator bukkitElevator){
         for (Block block : bukkitElevator.baseBlocks){
-            plugin.logDebug("Scan floor block type: " + world.getBlockAt(block.getX(), y, block.getZ()).getType().toString());
+            plugin.logDebug("Scan floor block type: " + world.getBlockAt(block.getX(), y, block.getZ()).getType());
             if (!BukkitConfig.floorMaterials.contains(world.getBlockAt(block.getX(), y, block.getZ()).getType())
                     && !BukkitConfig.blockSpeeds.containsKey(world.getBlockAt(block.getX(), y, block.getZ()).getType())
                     && !(world.getBlockAt(block.getX(), y, block.getZ()).isEmpty())){
@@ -457,7 +457,7 @@ public class BukkitElevatorManager extends ElevatorManager{
                 passenger.setFallDistance(0.0F);
 
                 if(reachedDestination(e, passenger)) {
-                    plugin.logDebug("Removing passenger: " + passenger.toString() + " with y " + passenger.getLocation().getY());
+                    plugin.logDebug("Removing passenger: " + passenger + " with y " + passenger.getLocation().getY());
                     plugin.logDebug("Upperbound " + (e.destFloor.getY() - 0.7));
                     plugin.logDebug("Lowerbound " + (e.destFloor.getY()-0.6));
                     plugin.logDebug("Trigger status: Going " + (e.goingUp ? "up" : "down"));

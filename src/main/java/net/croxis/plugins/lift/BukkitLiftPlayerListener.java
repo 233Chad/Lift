@@ -19,7 +19,7 @@
 package net.croxis.plugins.lift;
 
 import java.util.*;
-import java.util.stream.Collectors;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -70,7 +70,7 @@ public class BukkitLiftPlayerListener implements Listener{
 				BukkitElevator bukkitElevator = BukkitElevatorManager.createLift(buttonBlock, event.getPlayer().getName());
 
 				if (bukkitElevator == null){
-					plugin.logDebug("Player elevator generation returned a null object. Button block at: " + buttonBlock.getLocation().toString());
+					plugin.logDebug("Player elevator generation returned a null object. Button block at: " + buttonBlock.getLocation());
 					plugin.logDebug("Please see previous messages to determine why.");
 					return;
 				}
@@ -88,7 +88,7 @@ public class BukkitLiftPlayerListener implements Listener{
 
 				// If sign is clicked with an item in hand, just switch to the next floor
 				// If a sign is clicked with an open hand, use the mouse scroll method
-				plugin.logDebug("HAND: " + event.getPlayer().getInventory().getItemInMainHand().toString());
+				plugin.logDebug("HAND: " + event.getPlayer().getInventory().getItemInMainHand());
 				if (playerCache.containsKey(event.getPlayer().getUniqueId())){
 					plugin.logDebug("HAND: REMOVE");
 					removePlayerCache(event.getPlayer());
@@ -115,10 +115,8 @@ public class BukkitLiftPlayerListener implements Listener{
 					event.getPlayer().sendMessage(BukkitConfig.scrollSelectEnabled);
 				} else {
 					plugin.logDebug("FULL HAND CYCLE");
-					int currentDestinationInt = 1;
-
 					liftSign.setCurrentFloor(currentFloor.getFloor());
-					currentDestinationInt = liftSign.getDestinationFloor();
+					int currentDestinationInt = liftSign.getDestinationFloor();
 					currentDestinationInt++;
 					if (currentDestinationInt == currentFloor.getFloor()) {
 						currentDestinationInt++;
@@ -209,6 +207,7 @@ public class BukkitLiftPlayerListener implements Listener{
 		signSide.setLine(1, data[1]);
 		signSide.setLine(2, data[2]);
 		signSide.setLine(3, data[3]);
+		sign.setWaxed(true);
 		sign.update();
 		plugin.logDebug("Completed sign update");
 
@@ -257,7 +256,7 @@ public class BukkitLiftPlayerListener implements Listener{
 						.equals(event.getElevator().getFloorBlocks()))
 				.map(entry -> Bukkit.getPlayer(entry.getKey()))
 				.filter(Objects::nonNull)
-				.collect(Collectors.toList());
+				.toList();
 		cachedPlayersInElevator.forEach(this::removePlayerCache);
 	}
 

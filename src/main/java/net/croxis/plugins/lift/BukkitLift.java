@@ -105,7 +105,7 @@ public class BukkitLift extends JavaPlugin implements Listener {
     			bukkitElevator.baseBlockType = player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType();
     			BukkitElevatorManager.scanBaseBlocks(player.getLocation().getBlock().getRelative(BlockFace.DOWN), bukkitElevator);
     		} else {
-    			player.sendMessage("Not a valid base block type: " + player.getLocation().getBlock().getType().toString());
+    			player.sendMessage("Not a valid base block type: " + player.getLocation().getBlock().getType());
     			player.sendMessage("Options are: " + BukkitConfig.blockSpeeds.toString());
     			return true;
     		}

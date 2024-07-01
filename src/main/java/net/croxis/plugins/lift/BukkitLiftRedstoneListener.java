@@ -61,7 +61,7 @@ public class BukkitLiftRedstoneListener implements Listener {
 		String reason = "Button press";
 
 		if (BukkitConfig.redstone){
-			plugin.logDebug("Redstone scan of " + event.getBlock().toString());
+			plugin.logDebug("Redstone scan of " + event.getBlock());
 			reason = "Redstone signal event";
 			Block[] blocks = new Block[4];
 			blocks[0] = event.getBlock().getRelative(BlockFace.EAST);
@@ -94,7 +94,7 @@ public class BukkitLiftRedstoneListener implements Listener {
 			long startTime = System.currentTimeMillis();
 			BukkitElevator bukkitElevator = BukkitElevatorManager.createLift(block, reason);
 			if (bukkitElevator == null){
-				plugin.logDebug("Redstone elevator generation returned a null object. Button block at: " + block.getLocation().toString());
+				plugin.logDebug("Redstone elevator generation returned a null object. Button block at: " + block.getLocation());
 				plugin.logDebug("Please see previous messages to determine why.");
 				return;
 			}

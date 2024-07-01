@@ -3,6 +3,7 @@ For download see [Lift on spigotmc.org](https://www.spigotmc.org/resources/lift.
 [Lift on bukkit.org](https://dev.bukkit.org/projects/lift).
 
 ### Changes
+* v78 (1.21) - Recompiled for that version
 * v75 (1.20) - Increased limits for 1.20.
 * v72 (1.17.2) - Removed Nocheatplus support. Increased limits for 1.18. Min java version is Java 16
 * v71 (1.16.4) - A Lift does timeout when it's active longer than expected (passengers stuck).  
