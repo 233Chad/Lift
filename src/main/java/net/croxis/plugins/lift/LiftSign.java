@@ -25,7 +25,7 @@ package net.croxis.plugins.lift;
  * Line 1: Current floor int only
  * Line 2: "Dest Floor" and int
  * Line 3: Dest floor name string
- *
+ * <p>
  * Version 2
  * Line 0: "Current floor" string and int
  * Line 1: Current floor name
@@ -34,23 +34,29 @@ package net.croxis.plugins.lift;
  */
 
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+
+import java.util.List;
+
 /**
  * Created by croxis on 4/28/17.
  */
 class LiftSign {
     int signVersion = 0; // 0=hmod, 1=lift till 55, 2=lift>=56
     Config config;
-    private String sign0;
-    private String sign1;
-    private String sign2;
-    private String sign3;
+    private Component sign0;
+    private Component sign1;
+    private Component sign2;
+    private Component sign3;
     private int currentFloor = 0;
     private int destFloor = 0;
-    private String currentName = "";
-    private String destName = "";
+    private Component currentName = Component.text("");
+    private Component destName = Component.text("");
 
-    LiftSign (Config config, String[] lines){
-        this(config, lines[0], lines[1], lines[2], lines[3]);
+    LiftSign(Config config, List<Component> lines) {
+        this(config, lines.get(0), lines.get(1), lines.get(2), lines.get(3));
     }
 
     /**
@@ -61,7 +67,7 @@ class LiftSign {
      * @param line3
      */
 
-    LiftSign (Config config, String line0, String line1, String line2, String line3) {
+    LiftSign(Config config, Component line0, Component line1, Component line2, Component line3) {
         this.config = config;
         this.sign0 = line0;
         this.sign1 = line1;
@@ -69,86 +75,76 @@ class LiftSign {
         this.sign3 = line3;
 
         // Check to see if it is a new sign with just a floor name. No : allowed for floor name.
-        if (!line0.isEmpty() && !line0.contains(":") && line1.isEmpty() && line2.isEmpty() && line3.isEmpty()){
+        String plainLine0 = PlainTextComponentSerializer.plainText().serialize(line0);
+        if (!plainLine0.isEmpty() && !plainLine0.contains(":") &&
+                ((TextComponent)line1).content().isEmpty() &&
+                ((TextComponent)line2).content().isEmpty() &&
+                ((TextComponent)line3).content().isEmpty()) {
             signVersion = Config.signVersion;
             this.setCurrentName(line0);
-        }
-        else if (line0.isEmpty()) // Just an empty sign, no floor name
+        } else if (plainLine0.isEmpty()) // Just an empty sign, no floor name
             signVersion = Config.signVersion;
-        else if (line0.split(":").length == 1)
+        else if (plainLine0.split(":").length == 1)
             readVersion1();
-        else if (line0.split(":").length == 2)
+        else if (plainLine0.split(":").length == 2)
             readVersion2();
-        if (signVersion < 2)
-            updateFormat();
     }
 
-    private void readVersion1(){
+    private void readVersion1() {
         try {
-            signVersion = 1;
-            this.currentFloor = Integer.parseInt(this.sign1);
-            this.destFloor = Integer.parseInt(this.sign2.split(":")[1].trim().replaceAll("\\§r", ""));
+            signVersion = 2;
+            setCurrentFloor(Integer.parseInt(PlainTextComponentSerializer.plainText()
+                    .serialize(this.sign1)));
+            this.destFloor = Integer.parseInt(PlainTextComponentSerializer.plainText()
+                    .serialize(this.sign2).split(":")[1].trim());
             this.destName = this.sign3;
-        } catch (Exception e){
+        } catch (Exception e) {
             this.currentFloor = 0;
             this.destFloor = 0;
         }
     }
 
-    private void readVersion2(){
+    private void readVersion2() {
         try {
             signVersion = 2;
-            this.currentFloor = Integer.parseInt(this.sign0.split(":")[1].trim().replaceAll("\\§r", ""));
+            this.currentFloor = Integer.parseInt(PlainTextComponentSerializer.plainText()
+                    .serialize(this.sign0).split(":")[1].trim());
             this.currentName = this.sign1;
-            this.destFloor = Integer.parseInt(this.sign2.split(":")[1].trim().replaceAll("\\§r", ""));
+            this.destFloor = Integer.parseInt(PlainTextComponentSerializer.plainText()
+                    .serialize(this.sign2).split(":")[1].trim());
             this.destName = this.sign3;
-        } catch (Exception e){
+        } catch (Exception e) {
             this.currentFloor = 0;
             this.destFloor = 0;
         }
 
-    }
-
-    private void updateFormat(){
-        if (signVersion == 1){
-            setCurrentFloor(Integer.parseInt(this.sign1));
-            signVersion = 2;
-        }
     }
 
     void setCurrentFloor(int currentFloor) {
-        this.sign0 = Config.currentFloor + ": " + currentFloor + "§r";
+        this.sign0 = Component.text(Config.currentFloor + ": " + currentFloor);
+        this.currentFloor = currentFloor;
     }
 
     int getCurrentFloor() {
-        try{
-            String[] splits = sign0.split(": ");
-            return Integer.parseInt(splits[1].replaceAll("\\s","").replaceAll("\\§r", ""));
-        } catch (Exception e){
-            return 0;
-        }
+        return currentFloor;
     }
 
     int getDestinationFloor() {
-        try{
-            String[] splits = sign2.split(": ");
-            return Integer.parseInt(splits[1].replaceAll("\\s","").replaceAll("\\§r", ""));
-        } catch (Exception e){
-            return 0;
-        }
+        return destFloor;
     }
 
-    void setDestinationFloor(int destination){
-        this.sign2 = Config.destination + ": " + destination + "§r";
+    void setDestinationFloor(int destination) {
+        this.sign2 = Component.text(Config.destination + ": " + destination);
+        this.destFloor = destination;
     }
 
-    void setDestinationName(String destinationName) {
+    void setDestinationName(Component destinationName) {
         this.destName = destinationName;
-        this.sign3 = destinationName + "§r";
+        this.sign3 = destinationName;
     }
 
-    String[] saveSign() {
-        String[] data = new String[4];
+    Component[] saveSign() {
+        Component[] data = new Component[4];
         data[0] = this.sign0;
         data[1] = this.sign1;
         data[2] = this.sign2;
@@ -156,20 +152,23 @@ class LiftSign {
         return data;
     }
 
-    void setCurrentName(String name){
+    void setCurrentName(Component name) {
         this.currentName = name;
-        sign1 = name + "§r";
+        sign1 = name;
     }
 
-    String getCurrentName(){
+    Component getCurrentName() {
         return this.currentName;
     }
 
-    String getDebug(){
-        return this.sign0 + '\n' + this.sign1 + '\n' + this.sign2 + '\n' + this.sign3;
+    Component getDebug() {
+        return this.sign0
+                .appendNewline().append(this.sign1)
+                .appendNewline().append(this.sign2)
+                .appendNewline().append(this.sign3);
     }
 
     boolean isEmpty() {
-        return (sign0 + sign1 + sign2 + sign3).isEmpty();
+        return PlainTextComponentSerializer.plainText().serialize(sign0.append(sign1).append(sign2).append(sign3)).isEmpty();
     }
 }

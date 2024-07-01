@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -189,13 +190,13 @@ public class BukkitElevatorManager extends ElevatorManager{
                     if (testBlock.getRelative(BlockFace.DOWN).getType().toString().matches(".*?WALL_SIGN")){
                         Sign sign = (Sign) testBlock.getRelative(BlockFace.DOWN).getState();
                         SignSide signSide = sign.getSide(Side.FRONT);
-                        if (!signSide.getLine(0).isEmpty())
-                            floor.setName(signSide.getLine(0));
-                        else if (!signSide.getLine(1).isEmpty())
-                            floor.setName(signSide.getLine(1));
+                        if (!PlainTextComponentSerializer.plainText().serialize(signSide.line(0)).isEmpty())
+                            floor.setName(signSide.line(0));
+                        else if (!PlainTextComponentSerializer.plainText().serialize(signSide.line(1)).isEmpty())
+                            floor.setName(signSide.line(1));
                     }
                     else if (testBlock.getRelative(BlockFace.UP).getType().toString().matches(".*?WALL_SIGN")){
-                        LiftSign liftSign = new LiftSign(BukkitLift.config, ((Sign) testBlock.getRelative(BlockFace.UP).getState()).getSide(Side.FRONT).getLines());
+                        LiftSign liftSign = new LiftSign(BukkitLift.config, ((Sign) testBlock.getRelative(BlockFace.UP).getState()).getSide(Side.FRONT).lines());
                         floor.setName(liftSign.getCurrentName());
                     }
                     bukkitElevator.floormap.put(y1, floor);

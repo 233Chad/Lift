@@ -107,7 +107,7 @@ public class BukkitLiftRedstoneListener implements Listener {
 
             Sign sign = (Sign) block.getRelative(BlockFace.UP).getState();
             SignSide signSide = sign.getSide(Side.FRONT);
-			LiftSign liftSign = new LiftSign(BukkitLift.config, signSide.getLine(0), signSide.getLine(1), signSide.getLine(2), signSide.getLine(3));
+			LiftSign liftSign = new LiftSign(BukkitLift.config, signSide.lines());
 			int destination = liftSign.getDestinationFloor();
 			//See if lift is in use
 			for (BukkitElevator e : BukkitElevatorManager.bukkitElevators){
